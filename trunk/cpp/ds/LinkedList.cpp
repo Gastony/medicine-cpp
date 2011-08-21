@@ -11,20 +11,16 @@ class LinkedList
 public:
   LinkedList() : head(NULL) {};
   ~LinkedList() { destroyList(); };
-  Node * getHead();
   bool addNode(int data);
   bool deleteNode(int data);
   Node * searchNode(int data);
   void printList();
+  void reverseList();
+  void recursiveReverseList();
 private:
   Node * head;
   void destroyList();
 };
-
-Node * LinkedList::getHead()
-{
-  return head;
-}
 
 bool LinkedList::addNode(int data)
 {
@@ -115,6 +111,26 @@ void LinkedList::destroyList()
     }
 }
 
+void LinkedList::reverseList()
+{
+  Node *curr = head, *prev = head, *save = NULL;
+
+  while (curr)
+    {
+      save = curr->next;
+      curr->next = prev;
+      prev = curr;
+      curr = save;
+    }
+
+  head->next = NULL;
+  head = prev;
+}
+
+void LinkedList::recursiveReverseList()
+{
+}
+
 int main()
 {
   LinkedList l;
@@ -125,10 +141,15 @@ int main()
   l.addNode(3);
 
   l.printList();
+  l.reverseList();
+  l.printList();
 
   l.deleteNode(3);
   l.deleteNode(3);
   l.deleteNode(4);
+  
+  l.printList();
+  l.reverseList();
   l.printList();
 
   if (l.searchNode(2))
