@@ -16,7 +16,7 @@ private:
     bool _locked;
 };
 
-ScopedLock::ScopedLock(pthread_mutex_t& mutex) : _mutex(mutex)
+ScopedLock::ScopedLock(pthread_mutex_t& mutex) : _mutex(mutex) // references can only be initialized here
 {
     //pthread_mutex_init(&_mutex, NULL);
     //_mutex = mutex;
@@ -89,7 +89,7 @@ public:
 private:
     T* myobj;
     void* myarg;
-    void * (T::*fpt) (void *);
+    void * (T::*fpt) (void *); //Member function pointer 
 };
 
 template <class T>
@@ -129,7 +129,7 @@ int main()
     //delete [] larray;
     for (int i = 0; i < 3; ++i)
     {
-        delete larray[i];
+        delete larray[i]; //cannot do delete [] larray here because larray has not been created by new
     }
     
     pthread_exit(NULL);
