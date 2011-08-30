@@ -2,109 +2,134 @@
 using namespace std;
 
 #include <vector>
+#include <list>
+#include <algorithm>
 #include <queue>
-
-class Edge;
-
-class Vertex
-{
-private:
-    int v;
-    bool visited;
-public:
-    int getVal() const { return v; } 
-
-    explicit Vertex(int v) : v(v), visited(false) {}
-
-    bool isVisited() { return visited; }
-
-    void setVisited(bool flag) { visited = flag; }
-};
+#include <stack>
 
 class Edge
 {
-private:
-    int cost;
-    const Vertex & dest;
 public:
-    explicit Edge(const Vertex & dest) :  dest(dest), cost(0) {}
-    const Vertex & getDest() const { return dest; }
+  int dest;
+  int weight;
+
+  Edge(int dest) : dest(dest), weight(0) {}
 };
 
-bool operator< (const Vertex & v1, const Vertex & v2)
+class Vertex
 {
-    return v1.v < v2.v;
+public:
+  int orig;
+  std::list<Edge> adjList;
+  bool visited;
+
+  Vertex(int v) : orig(v), visited(false) {}
+  friend bool operator==(const Vertex & v, int data);
+  friend std::ostream & operator<<(std::ostream & os, const Vertex & v);
+};
+
+bool operator==(const Vertex & v, int data)
+{
+  if (v.orig == data) return true;
+  return false;
+}
+
+std::ostream & operator<<(std::ostream & os, const Vertex & v)
+{
+  os << v.orig << ":";
+  std::list<Edge>::const_iterator iter = v.adjList.begin();
+  for(; iter != v.adjList.end(); ++iter)
+    {
+      os << " " << iter->dest;
+    }
+
+  return os;
 }
 
 class Graph
 {
-public:
-    void addVertex(int v);
-    void addEdge(int v1, int v2);
-    void print();
-    void BreadthFirstTour(int v);
-    void DepthFirstTour(int v);
-    void TopologicalSort();
-    
 private:
-    std::map<Vertex, std::list<Edge>, std::less<Vertex> > vertices;
+  std::vector<Vertex> vertices;
+public:
+  void addVertex(int v);
+  void addEdge(int v1, int v2);
+  void print();
+  void BreadthFirstTour(int v);
+  void DepthFirstTour(int v);
+  void TopologicalSort();
 };
 
 void Graph::addVertex(int v) 
 {
-    std::map<Vertex, std::list<Edge> >::iterator iter = vertices.find(Vertex(v));
-    if (iter == vertices.end())
-    {
-        std::list<Edge> el;
-        vertices.insert(std::make_pair(Vertex(v), el));
-    }
+  vertices.push_back(v); //implicit constructor call
 }
 
 void Graph::addEdge(int v1, int v2)
 {
-    std::map<Vertex, std::list<Edge> >::iterator iter2 = vertices.find(Vertex(v2));
-    if (iter2 == vertices.end()) return;
-
-    std::map<Vertex, std::list<Edge> >::iterator iter = vertices.find(Vertex(v1));
-    if (iter == vertices.end()) return;
-
-    iter->second.push_back(Edge(iter2->first));
+  std::vector<Vertex>::iterator iter = find(vertices.begin(), vertices.end(), v1);
+  if (iter != vertices.end())
+    {
+      Edge edge(v2);
+      iter->adjList.push_back(edge);
+    }
 }
 
 void Graph::print()
 {
-    std::map<Vertex, std::list<Edge> >::const_iterator iter = vertices.begin();
-
-    for (; iter != vertices.end(); ++iter)
+  std::vector<Vertex>::const_iterator iter = vertices.begin();
+  for (; iter != vertices.end(); ++iter)
     {
-        cout << iter->first.getVal() << " :";
-
-        std::list<Edge>::const_iterator liter = iter->second.begin();
-        for (; liter != iter->second.end(); ++liter)
-        {
-            cout << " " << liter->getDest().getVal();
-        }
-        cout << "\n";
+      cout << *iter << "\n";
     }
 }
 
 void Graph::BreadthFirstTour(int v)
 {
-    cout << "Starting BFS\n";
+  cout << "BFS BEGIN\n";
 
-    std::queue<const Vertex &> q;
-    q.push(Vertex(v));
-
-    while (!q.empty())
+  std::queue<int> q;
+  std::vector<Vertex>::iterator iter = find(vertices.begin(), vertices.end(), v);
+  if (iter != vertices.end())
     {
-        
+      q.push(iter-vertices.begin());
     }
-    
-    cout << "Ending BFS" << std::endl;
+  else
+    {
+      cout << "BFS END\n";
+      return;
+    }
+
+  while (!q.empty())
+    {
+      int vtx = q.front();
+      q.pop();
+      if (vertices[vtx].visited == false)
+	{
+	  vertices[vtx].visited = true;
+	  cout << vertices[vtx].orig << " ";
+
+	  std::list<Edge>::const_iterator iter = vertices[vtx].adjList.begin();
+	  while (iter != vertices[vtx].adjList.end())
+	    {
+	      //cout << "dest " << iter->dest << endl;
+	      std::vector<Vertex>::const_iterator citer = find(vertices.begin(), vertices.end(), iter->dest);
+	      if (citer != vertices.end())
+		{
+		  q.push(citer-vertices.begin());
+		  //cout << "pushing " << citer->orig << endl;
+		}
+	      ++iter;
+	    }
+	}
+    }
+
+  cout << "\nBFS END" << endl;
 }
 
 void Graph::DepthFirstTour(int v)
 {
+  cout << "DFS START\n";
+  cout << "\nDFS END" << endl;
 }
 
 void Graph::TopologicalSort()
@@ -125,11 +150,14 @@ int main()
     g.addEdge(1,3);
     g.addEdge(2,4);
     g.addEdge(3,5);
+    g.addEdge(4,5);
 
     g.print();
 
     g.BreadthFirstTour(1);
     
+    g.DepthFirstTour(1);
+
     return 0;
 }
 
