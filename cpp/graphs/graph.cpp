@@ -22,6 +22,7 @@ public:
   int orig;
   std::list<Edge> adjList;
   bool visited;
+  bool processed;
 
   Vertex(int v) : orig(v), visited(false) {}
   friend bool operator==(const Vertex & v, int data);
@@ -141,7 +142,45 @@ void Graph::resetStates()
 void Graph::DepthFirstTour(int v)
 {
   cout << "DFS START\n";
+
+  std::stack<int> s;
+  std::vector<Vertex>::iterator iter = find(vertices.begin(), vertices.end(), v);
+  if (iter != vertices.end())
+    {
+      s.push(iter-vertices.begin());
+    }
+  else
+    {
+      cout << "DFS END\n";
+      return;
+    }
+
+  while (!s.empty())
+    {
+      int vtx = s.top();
+ 
+      if (vertices[vtx].visited == false)
+	{
+	  vertices[vtx].visited = true;
+
+	  std::list<Edge>::const_iterator iter = vertices[vtx].adjList.begin();
+	  while (iter != vertices[vtx].adjList.end())
+	    {
+	      //cout << "dest " << iter->dest << endl;
+	      std::vector<Vertex>::const_iterator citer = find(vertices.begin(), vertices.end(), iter->dest);
+	      if (citer != vertices.end())
+		{
+		  s.push(citer-vertices.begin());
+		  //cout << "pushing " << citer->orig << endl;
+		}
+	      ++iter;
+	    }
+	}
+    }
+
   cout << "\nDFS END" << endl;
+
+  resetStates();
 }
 
 void Graph::TopologicalSort()
