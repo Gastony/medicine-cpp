@@ -247,9 +247,9 @@ int main()
     g.addEdge(2,5);
     g.addEdge(3,6);
     g.addEdge(3,7);
-    g.addEdge(5,8); //disjoint node 8
+    //g.addEdge(5,8); //disjoint node 8
 
-    g.addEdge(6,3); //this is forming cycle
+    //g.addEdge(6,3); //this is forming cycle
 
     g.print();
 
