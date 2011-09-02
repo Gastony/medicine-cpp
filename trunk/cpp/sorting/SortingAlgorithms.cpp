@@ -25,11 +25,12 @@ void print(std::vector<int> const & data)
     }
 }
 
+int generateRandom(int low, int high);
 void Shuffle(std::vector<int> & data)
 {
     int length = data.size();
 
-    for (int i = 0; i < length; ++i)
+    for (int i = 0; i < length-1; ++i)
     {
         swap(data, i, generateRandom(i+1, length-1));
     }
@@ -39,6 +40,10 @@ void Shuffle(std::vector<int> & data)
 
 int generateRandom(int low, int high)
 {
+    srand(low);
+    int gen = 0;
+    gen = rand() % (high - low + 1) + low;
+    return gen;
 }
 
 //useful for small lists, and for large lists where data is
@@ -67,21 +72,192 @@ void BubbleSort(std::vector<int> & data)
 // does at most n swaps
 void SelectionSort(std::vector<int> & data)
 {
+    int length = data.size();
+
+    for (int i = 0; i < length; ++i)
+    {
+        int min = i;
+        for (int j = i+1; j < length; ++j)
+        {
+            if (data[j] < data[min])
+            {
+                min = j;
+            }
+        }
+
+        if (min != i)
+        {
+            swap(data, i, min);
+        }
+    }
+}
+
+//useful for small and mostly sorted lists
+//expensive to move array elements
+void InsertionSort(std::vector<int> & data)
+{
+    int length = data.size();
+
+    for (int i = 1; i < length; ++i)
+    {
+        bool inplace = true;
+        int j = 0;
+        for (; j < i; ++j)
+        {
+            if (data[i] < data[j])
+            {
+                inplace = false;
+                break;
+            }
+        }
+
+        if (!inplace)
+        {
+            int save = data[i];
+            for (int k = i; k > j; --k)
+            {
+                data[k] = data[k-1];
+            }
+            data[j] = save;
+        }
+    }
+}
+
+void Merge(std::vector<int> & data, int lowl, int highl, int lowr, int highr);
+void MergeSort(std::vector<int> & data, int low, int high)
+{
+    if (low >= high)
+    {
+        return;
+    }
+    
+    int mid = low + (high-low)/2;
+
+    MergeSort(data, low, mid);
+
+    MergeSort(data, mid+1, high);
+
+    Merge(data, low, mid, mid+1, high);
+}
+
+void Merge(std::vector<int> & data, int lowl, int highl, int lowr, int highr)
+{
+    int tmp_low = lowl;
+    std::vector<int> tmp;
+    
+    while (lowl <= highl && lowr <= highr)
+    {
+        if (data[lowl] < data[lowr])
+        {
+            tmp.push_back(data[lowl++]);
+        }
+        else if (data[lowr] < data[lowl])
+        {
+            tmp.push_back(data[lowr++]);
+        }
+        else
+        {
+            tmp.push_back(data[lowl++]);
+            tmp.push_back(data[lowr++]);
+        }
+    }
+
+    while (lowl <= highl)
+    {
+        tmp.push_back(data[lowl++]);
+    }
+
+    while (lowr <= highr)
+    {
+        tmp.push_back(data[lowr++]);
+    }
+
+    std::vector<int>::const_iterator iter = tmp.begin();
+    
+    for(; iter != tmp.end(); ++iter)
+    {
+        data[tmp_low++] = *iter;
+    }
+}
+
+int Partition(std::vector<int> & data, int low, int high);
+void QuickSort(std::vector<int> & data, int low, int high)
+{
+    if (low >= high) return;
+    
+    int p = Partition(data, low, high);
+
+    QuickSort(data, low, p-1);
+    QuickSort(data, p+1, high);
+}
+
+int Partition(std::vector<int> & data, int low, int high)
+{
+    int p = low;
+    for (int i = p+1; i <= high; ++i)
+    {
+        if (data[i] < data[p])
+        {
+            swap(data, i, p);
+            if (i != p+1)
+            {
+                swap(data, i, p+1);
+            }
+            p = p + 1;
+        }
+    }
+
+    return p;
+}
+
+void HeapSort(std::vector<int> & data)
+{
+}
+
+//O(kN) k is max number of digits
+void RadixSort(std::vector<int> & data)
+{
 }
 
 int main()
 {
-    int a[] = {5, 6, 1, 2, 0, 8};
+    int a[] = {5, 6, 1, 2, 0, 8, -1, -2, 8, 0};
     std::vector<int> data(a, a + sizeof(a)/sizeof(int));
 
-    //bubble sort
+    //Bubble sort
     BubbleSort(data);
     print(data);
 
-    //selection sort
+    //Selection sort
     Shuffle(data);
     SelectionSort(data);
     print(data);
+
+    //Insertion sort
+    Shuffle(data);
+    InsertionSort(data);
+    print(data);
+
+    //Merge sort
+    Shuffle(data);
+    MergeSort(data, 0, data.size()-1);
+    print(data);
+
+    //Quick sort
+    Shuffle(data);
+    QuickSort(data, 0, data.size()-1);
+    print(data);
+
+    //Heap Sort
+    Shuffle(data);
+    HeapSort(data);
+    print(data);
+
+    //Radix Sort
+    int b[] = {123, 6, 24, 4567, 45, 989834, 98, 23, 8, 0};
+    std::vector<int> rdata(b, b + sizeof(b)/sizeof(int));
+    RadixSort(rdata);
+    print(rdata);
     
     return 0;
 }
