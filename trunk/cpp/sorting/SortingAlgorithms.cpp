@@ -1,7 +1,8 @@
 #include <iostream>
-using namespace std;
-
 #include <vector>
+#include <queue>
+
+using namespace std;
 
 void swap(std::vector<int> & data, int i, int j)
 {
@@ -210,13 +211,89 @@ int Partition(std::vector<int> & data, int low, int high)
     return p;
 }
 
-void HeapSort(std::vector<int> & data)
-{
-}
-
 //O(kN) k is max number of digits
+int findMaxDigits(std::vector<int> & data);
+void PutInQueues(std::queue<int>  q[], int qcount, std::vector<int> & data, int digit);
+void GetPartialSorted(std::queue<int>  q[], int qcount, std::vector<int> & data);
+
 void RadixSort(std::vector<int> & data)
 {
+  std::queue<int> q[10];
+  int maxDigits = findMaxDigits(data);
+  
+  for (int i = 0; i < maxDigits; ++i)
+    {
+      PutInQueues(q, 10, data, i+1);
+      data.clear();
+      GetPartialSorted(q, 10, data);
+    }
+}
+
+int getDigitAt(int n, int digit);
+void PutInQueues(std::queue<int>  q[], int qcount, std::vector<int> & data, int digit)
+{
+  std::vector<int>::const_iterator iter = data.begin();
+  for(; iter != data.end(); ++iter)
+    {
+      int qpos = getDigitAt(*iter, digit);
+      q[qpos].push(*iter);
+    }
+}
+
+int getDigitAt(int n, int digit)
+{
+  int dig = 0;
+  while (digit--)
+    {
+      dig = n % 10;
+      n = n / 10;
+    }
+  return dig;
+}
+
+void GetPartialSorted(std::queue<int>  q[], int qcount, std::vector<int> & data)
+{
+  for (int i = 0; i < qcount; ++i)
+    {
+      if (q[i].size() > 0)
+	{
+	  int length = q[i].size();
+	  while (length--)
+	    {
+	      data.push_back(q[i].front());
+	      q[i].pop();
+	    }
+	}
+    }
+}
+
+int numDigits(int n);
+int findMaxDigits(std::vector<int> & data)
+{
+  std::vector<int>::const_iterator iter = data.begin();
+  int max = 0;
+  for (; iter != data.end(); ++iter)
+    {
+      int numd = numDigits(*iter);
+      if (max < numd)
+	{
+	  max = numd;
+	}
+    }
+
+  return max;
+}
+
+int numDigits(int n)
+{
+  int count = 0;
+  while(n != 0)
+    {
+      n = n/10;
+      ++count;
+    }
+
+  return count;
 }
 
 int main()
@@ -246,11 +323,6 @@ int main()
     //Quick sort
     Shuffle(data);
     QuickSort(data, 0, data.size()-1);
-    print(data);
-
-    //Heap Sort
-    Shuffle(data);
-    HeapSort(data);
     print(data);
 
     //Radix Sort
