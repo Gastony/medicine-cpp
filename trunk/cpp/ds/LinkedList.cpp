@@ -1,35 +1,43 @@
 #include <iostream>
 
+template <class T>
 struct Node
 {
-  int data;
+  T data;
   Node * next;
 };
 
+template <class T>
 class LinkedList
 {
 public:
-  LinkedList() : head(NULL) {};
+  LinkedList() : head(NULL), size(0) {};
   ~LinkedList() { destroyList(); };
-  bool addNode(int data);
-  bool deleteNode(int data);
-  Node * searchNode(int data);
+  bool addNode(T data);
+  bool deleteNode(T data);
+  Node<T> * searchNode(T data);
   void printList();
   void reverseList();
-  void recursiveReverseList();
+  void sortList();
 private:
-  Node * head;
+  Node<T> * head;
+  int size;
   void destroyList();
+  Node<T>* mergeSort(Node<T> * head, int total);
+  Node<T>* Merge(Node<T>* left, int lcount, Node<T>* right, int rcount);
+  void print(Node<T> * tmp);
 };
 
-bool LinkedList::addNode(int data)
+template <class T>
+bool LinkedList<T>::addNode(T data)
 {
 try
   {
-    Node * tmp = new Node();
+    Node<T> * tmp = new Node<T>();
     tmp->data = data;
     tmp->next = head;
     head = tmp;
+    ++size;
     return true;
   }
 catch(std::exception & ex)
@@ -38,9 +46,10 @@ catch(std::exception & ex)
   }
 }
 
-bool LinkedList::deleteNode(int data)
+template <class T>
+bool LinkedList<T>::deleteNode(T data)
 {
-  Node *curr = head, *prev = NULL;
+  Node<T> *curr = head, *prev = NULL;
 
   while (curr)
   {
@@ -61,6 +70,7 @@ bool LinkedList::deleteNode(int data)
 	  head = curr->next;
 	}
       delete(curr);
+      --size;
       return true;
     }
   else
@@ -69,9 +79,10 @@ bool LinkedList::deleteNode(int data)
     }
 }
 
-Node * LinkedList::searchNode(int data)
+template <class T>
+Node<T> * LinkedList<T>::searchNode(T data)
 {
-  Node * tmp = head;
+  Node<T> * tmp = head;
   while (tmp)
     {
       if (tmp->data == data)
@@ -83,9 +94,26 @@ Node * LinkedList::searchNode(int data)
   return NULL;
 }
 
-void LinkedList::printList()
+template <class T>
+void LinkedList<T>::print(Node<T> * tmp)
 {
-  Node * tmp = head;
+  bool printNewLine = (tmp) ? true : false;
+  while (tmp)
+    {
+      std::cout << tmp->data << ",";
+      tmp = tmp->next;
+    } 
+
+  if (printNewLine)
+    {
+      std::cout << std::endl;
+    }
+}
+
+template <class T>
+void LinkedList<T>::printList()
+{
+  Node<T> * tmp = head;
   bool printNewLine = (tmp) ? true : false;
   while (tmp)
     {
@@ -99,21 +127,23 @@ void LinkedList::printList()
     }
 }
 
-void LinkedList::destroyList()
+template <class T>
+void LinkedList<T>::destroyList()
 {
-  Node * tmp = NULL;
+  Node<T> * tmp = NULL;
   while (head)
     {
       tmp = head;
       head = head->next;
-      std::cout << "deleting data " << tmp->data << std::endl;
+      //std::cout << "deleting data " << tmp->data << std::endl;
       delete(tmp);
     }
 }
 
-void LinkedList::reverseList()
+template <class T>
+void LinkedList<T>::reverseList()
 {
-  Node *curr = head, *prev = head, *save = NULL;
+  Node<T> *curr = head, *prev = head, *save = NULL;
 
   while (curr)
     {
@@ -127,13 +157,98 @@ void LinkedList::reverseList()
   head = prev;
 }
 
-void LinkedList::recursiveReverseList()
+//use merge sort
+template <class T>
+void LinkedList<T>::sortList()
 {
+  head = mergeSort(head, size);
+}
+
+template <class T>
+Node<T>* LinkedList<T>::mergeSort(Node<T> * first, int total)
+{
+  if (total < 1) { return first; }
+  if (total < 2) { first->next = NULL; return first;}
+
+  Node<T> * curr = first;
+  int count = total/2;
+  while (count--)
+    {
+      curr = curr->next;
+    }
+
+ 
+  count = total/2;
+  first = mergeSort(first, count);
+ 
+  curr = mergeSort(curr, total-count);
+ 
+  return Merge(first, count, curr, total-count);
+}
+
+template <class T>
+Node<T>* LinkedList<T>::Merge(Node<T>* left, int lcount, Node<T>* right, int rcount)
+{
+  Node<T> * h = new Node<T>();
+  h->next = NULL;
+  Node<T> * tmp = h;
+
+  while (lcount > 0 && rcount > 0)
+    {
+      if (left->data < right->data)
+	{
+	  tmp->next = left;
+	  tmp = tmp->next;
+	  left = left->next;
+	  --lcount;
+	}
+      else if (right->data < left->data)
+	{
+	  tmp->next = right;
+	  tmp = tmp->next;
+	  right = right->next;
+	  --rcount;
+	}
+      else
+	{
+	  tmp->next = left;
+	  tmp = tmp->next;
+	  left = left->next;
+	  --lcount;
+
+	  tmp->next = right;
+	  tmp = tmp->next;
+	  right = right->next;
+	  --rcount;
+	}
+    }
+
+  while (lcount > 0)
+    {
+      tmp->next = left;
+      tmp = tmp->next;
+      left = left->next;
+      --lcount;
+    }
+
+  while (rcount > 0)
+    {
+      tmp->next = right;
+      tmp = tmp->next;
+      right = right->next;
+      --rcount;
+    }
+
+  tmp = h;
+  h = h->next;
+  delete(tmp);
+
+  return h;
 }
 
 int main()
 {
-  LinkedList l;
+  LinkedList<int> l;
   l.addNode(3);
   l.addNode(2);
   l.addNode(6);
@@ -144,12 +259,18 @@ int main()
   l.reverseList();
   l.printList();
 
+  l.sortList();
+  l.printList();
+
   l.deleteNode(3);
   l.deleteNode(3);
   l.deleteNode(4);
-  
+
   l.printList();
   l.reverseList();
+  l.printList();
+
+  l.sortList();
   l.printList();
 
   if (l.searchNode(2))
@@ -161,6 +282,7 @@ int main()
     {
       std::cout << "5 not found \n";
     }
+
   return 0;
 }
   
