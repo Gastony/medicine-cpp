@@ -186,6 +186,7 @@ Node<T>* LinkedList<T>::mergeSort(Node<T> * first, int total)
   return Merge(first, count, curr, total-count);
 }
 
+/*
 template <class T>
 Node<T>* LinkedList<T>::Merge(Node<T>* left, int lcount, Node<T>* right, int rcount)
 {
@@ -244,6 +245,33 @@ Node<T>* LinkedList<T>::Merge(Node<T>* left, int lcount, Node<T>* right, int rco
   delete(tmp);
 
   return h;
+}
+*/
+
+template <class T>
+Node<T>* LinkedList<T>::Merge(Node<T>* left, int count_left, Node<T>* right, int count_right)
+{
+    Node<T> * head = NULL;
+    Node<T> ** current = &head;
+
+    while (count_left > 0 || count_right > 0)
+    {
+        if( count_right == 0 || (count_left > 0 && left->data < right->data))
+        {
+            *current = left;
+	    current = &(*current)->next;
+	    left = left->next;
+            --count_left;
+        }
+        else
+        {
+            *current = right;
+	    current = &(*current)->next;
+	    right = right->next;
+            --count_right;
+        }
+    }
+    return head;
 }
 
 int main()
