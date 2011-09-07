@@ -1,33 +1,37 @@
 #include <iostream>
 using namespace std;
 
+template <class T>
 struct Node
 {
-  Node(int data) : data(data), next(NULL), prev(NULL) {}
-  int data;
+  Node(T data) : data(data), next(NULL), prev(NULL) {}
+  T data;
   Node * next;
   Node * prev;
 };
 
+template <class T>
 class DoublyLinkedList
 {
 public:
   DoublyLinkedList() : head(NULL), tail(NULL) {}
-  DoublyLinkedList(const DoublyLinkedList & dll);
+  DoublyLinkedList(const DoublyLinkedList<T> & dll);
   ~DoublyLinkedList();
-  void addNode(int data);
+  void addNode(T data);
   //void insertNodeBefore(int data, int before);
   //void insertNodeAfter(int data, int after);
-  void deleteNode(int data);
-  friend std::ostream & operator<<(std::ostream & os, const DoublyLinkedList & dll);
+  void deleteNode(T data);
+  template <class U>
+  friend std::ostream & operator<<(std::ostream & os, const DoublyLinkedList<U> & dll);
 private:
-  Node * head;
-  Node * tail;
+  Node<T> * head;
+  Node<T> * tail;
 };
 
-std::ostream & operator<<(std::ostream & os, const DoublyLinkedList & dll)
+template <class U>
+std::ostream & operator<<(std::ostream & os, const DoublyLinkedList<U> & dll)
 {
-  Node * tmp = dll.head;
+  Node<U> * tmp = dll.head;
   while (tmp)
     {
       os << tmp->data << " ";
@@ -37,9 +41,10 @@ std::ostream & operator<<(std::ostream & os, const DoublyLinkedList & dll)
   return os;
 }
 
-DoublyLinkedList::~DoublyLinkedList()
+template <class T>
+DoublyLinkedList<T>::~DoublyLinkedList()
 {
-  Node * tmp = NULL;
+  Node<T> * tmp = NULL;
   while (head)
     { 
       tmp = head;
@@ -49,11 +54,12 @@ DoublyLinkedList::~DoublyLinkedList()
   head = tail = NULL;
 }
 
-void DoublyLinkedList::addNode(int data)
+template <class T>
+void DoublyLinkedList<T>::addNode(T data)
 {
-  Node * t = new Node(data);
+  Node<T> * t = new Node<T>(data);
   
-  Node * tmp = head;
+  Node<T> * tmp = head;
   if (tmp == NULL)
     {
       head = tail = t;
@@ -72,9 +78,10 @@ void DoublyLinkedList::addNode(int data)
     }
 }
 
-void DoublyLinkedList::deleteNode(int data)
+template <class T>
+void DoublyLinkedList<T>::deleteNode(T data)
 {
-  Node * tmp = head;
+  Node<T> * tmp = head;
   while (tmp && tmp->data != data)
     {
       tmp = tmp->next;
@@ -102,9 +109,10 @@ void DoublyLinkedList::deleteNode(int data)
     }
 }
 
-DoublyLinkedList::DoublyLinkedList(const DoublyLinkedList & dll)
+template <class T>
+DoublyLinkedList<T>::DoublyLinkedList(const DoublyLinkedList<T> & dll)
 {
-  Node * tmp = dll.head;
+  Node<T> * tmp = dll.head;
   while (tmp)
     {
       this->addNode(tmp->data);
@@ -114,7 +122,7 @@ DoublyLinkedList::DoublyLinkedList(const DoublyLinkedList & dll)
 
 int main()
 {
-  DoublyLinkedList dll;
+  DoublyLinkedList<int> dll;
 
   dll.addNode(1);
   dll.addNode(2);
@@ -123,7 +131,7 @@ int main()
   dll.addNode(5);
 
   cout << dll << endl;
-  DoublyLinkedList dll2(dll);
+  DoublyLinkedList<int> dll2(dll);
   cout << dll2 << endl;
 
   dll.deleteNode(3);
