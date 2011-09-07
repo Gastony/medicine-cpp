@@ -43,7 +43,7 @@ T & Queue<T>::back()
 template <class T>
 bool Queue<T>::empty()
 {
-  return (elems.size() == 0) ? true : false;
+  return elems.size() == 0;
 }
 
 template <class T>
