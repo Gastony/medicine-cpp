@@ -11,21 +11,23 @@ template <class T>
 class LinkedList
 {
 public:
-  LinkedList() : head(NULL), size(0) {};
-  ~LinkedList() { destroyList(); };
-  bool addNode(T data);
-  bool deleteNode(T data);
-  Node<T> * searchNode(T data);
-  void printList();
-  void reverseList();
-  void sortList();
+    LinkedList() : head(NULL), size(0) {};
+    ~LinkedList() { destroyList(); };
+    bool addNode(T data);
+    bool deleteNode(T data);
+    Node<T> * searchNode(T data);
+    void printList();
+    void reverseList();
+    void recursiveReverseList();
+    void sortList();
 private:
   Node<T> * head;
   int size;
   void destroyList();
   Node<T>* mergeSort(Node<T> * head, int total);
   Node<T>* Merge(Node<T>* left, int lcount, Node<T>* right, int rcount);
-  void print(Node<T> * tmp);
+    void print(Node<T> * tmp);
+    void recursivePrivateReverseList(Node<T> * head, Node<T>* next);
 };
 
 template <class T>
@@ -62,13 +64,13 @@ bool LinkedList<T>::deleteNode(T data)
   if (curr)
     {
       if (prev)
-	{
-	  prev->next = curr->next;
-	}
+        {
+          prev->next = curr->next;
+        }
       else
-	{
-	  head = curr->next;
-	}
+        {
+          head = curr->next;
+        }
       delete(curr);
       --size;
       return true;
@@ -86,9 +88,9 @@ Node<T> * LinkedList<T>::searchNode(T data)
   while (tmp)
     {
       if (tmp->data == data)
-	{
-	  return tmp;
-	}
+        {
+          return tmp;
+        }
       tmp = tmp->next;
     }
   return NULL;
@@ -143,7 +145,7 @@ void LinkedList<T>::destroyList()
 template <class T>
 void LinkedList<T>::reverseList()
 {
-  Node<T> *curr = head, *prev = head, *save = NULL;
+  Node<T> *curr = head, *prev = NULL, *save = NULL;
 
   while (curr)
     {
@@ -153,8 +155,30 @@ void LinkedList<T>::reverseList()
       curr = save;
     }
 
-  head->next = NULL;
+  //head->next = NULL;
   head = prev;
+}
+
+template <class T>
+void LinkedList<T>::recursivePrivateReverseList(
+    Node<T> * h, Node<T>* next)
+{
+    if (h)
+    {
+        Node<T> * tmp = h->next;
+        h->next = next;
+        recursivePrivateReverseList(tmp, h);
+    }
+    else
+    {
+        head = next;
+    }
+}
+
+template <class T>
+void LinkedList<T>::recursiveReverseList()
+{
+    recursivePrivateReverseList(head, NULL);
 }
 
 //use merge sort
@@ -197,31 +221,31 @@ Node<T>* LinkedList<T>::Merge(Node<T>* left, int lcount, Node<T>* right, int rco
   while (lcount > 0 && rcount > 0)
     {
       if (left->data < right->data)
-	{
-	  tmp->next = left;
-	  tmp = tmp->next;
-	  left = left->next;
-	  --lcount;
-	}
+        {
+          tmp->next = left;
+          tmp = tmp->next;
+          left = left->next;
+          --lcount;
+        }
       else if (right->data < left->data)
-	{
-	  tmp->next = right;
-	  tmp = tmp->next;
-	  right = right->next;
-	  --rcount;
-	}
+        {
+          tmp->next = right;
+          tmp = tmp->next;
+          right = right->next;
+          --rcount;
+        }
       else
-	{
-	  tmp->next = left;
-	  tmp = tmp->next;
-	  left = left->next;
-	  --lcount;
+        {
+          tmp->next = left;
+          tmp = tmp->next;
+          left = left->next;
+          --lcount;
 
-	  tmp->next = right;
-	  tmp = tmp->next;
-	  right = right->next;
-	  --rcount;
-	}
+          tmp->next = right;
+          tmp = tmp->next;
+          right = right->next;
+          --rcount;
+        }
     }
 
   while (lcount > 0)
@@ -259,15 +283,15 @@ Node<T>* LinkedList<T>::Merge(Node<T>* left, int count_left, Node<T>* right, int
         if( count_right == 0 || (count_left > 0 && left->data < right->data))
         {
             *current = left;
-	    current = &(*current)->next;
-	    left = left->next;
+            current = &(*current)->next;
+            left = left->next;
             --count_left;
         }
         else
         {
             *current = right;
-	    current = &(*current)->next;
-	    right = right->next;
+            current = &(*current)->next;
+            right = right->next;
             --count_right;
         }
     }
@@ -287,6 +311,9 @@ int main()
   l.reverseList();
   l.printList();
 
+  l.recursiveReverseList();
+  l.printList();
+  
   l.sortList();
   l.printList();
 
@@ -298,6 +325,9 @@ int main()
   l.reverseList();
   l.printList();
 
+  l.recursiveReverseList();
+  l.printList();
+  
   l.sortList();
   l.printList();
 
@@ -313,4 +343,3 @@ int main()
 
   return 0;
 }
-  
