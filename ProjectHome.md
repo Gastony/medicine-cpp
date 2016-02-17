@@ -1,0 +1,1 @@
+experimenting with programming languages and computer science; using pthreads, networking libraries; designing custom data structures and algorithms; solving problems; hobby programs; hobby projects;
